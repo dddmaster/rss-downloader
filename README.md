@@ -7,8 +7,8 @@ any new content that is published.
 
 1. Install dependent python modules
 
-   pip install feedparser
-   pip install schedule
+        pip install feedparser
+        pip install schedule
 
 2. Download `rss_downloader.py`
 3. Modify `rss_downloader.py` with the RSS feed url and the output directory to
@@ -19,8 +19,8 @@ place the downloaded content
 
 1. Install dependent python modules
 
-   pip install feedparser
-   pip install schedule
+        pip install feedparser
+        pip install schedule
 
 2. Download `rss_downloader.py` and place it here `/opt/bin/rss_downloader.py`
 3. Modify `rss_downloader.py` with the RSS feed url and the output directory to
