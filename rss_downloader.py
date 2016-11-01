@@ -76,11 +76,10 @@ def download_entry(title, link):
 
 def run():
     logger.info("Checking feed")
-    # Do request using requests library and timeout
     try:
         resp = requests.get(rss_url, timeout=10.0)
     except requests.ReadTimeout:
-        logger.warn("Timeout when reading RSS %s", rss_feed)
+        logger.warn("Timeout when reading RSS %s", rss_url)
         return
     # Put it to memory stream object universal feedparser
     content = BytesIO(resp.content)
