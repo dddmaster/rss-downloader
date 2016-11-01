@@ -24,14 +24,20 @@ import os
 import base64
 import urllib2
 import logging
+import requests
+from io import BytesIO
+from logging.handlers import RotatingFileHandler
 import schedule
 import time
 
 cron_minute_delay = 10
 rss_url = "https://[myurl]"
 root_download_dir = "[my_rss_working_dir]"
-
-logging.basicConfig(filename=root_download_dir + '/rssdownloader.log',level=logging.DEBUG, format='%(asctime)s %(message)s')
+logger = logging.getLogger("rssLogger")
+logger.setLevel(logging.DEBUG)
+handler = RotatingFileHandler(root_download_dir + '/rssdownloader.log', maxBytes=50000,backupCount=5)
+handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
+logger.addHandler(handler)
 entries_dir = root_download_dir + "/entries/"
 read_entry_marker_dir = root_download_dir + "/marked_as_read/"
 
@@ -53,7 +59,7 @@ def download_entry(title, link):
     attempts = 1
     while attempts < 3:
         try:
-            response = urllib2.urlopen(link)
+            response = urllib2.urlopen(link, timeout=5)
             entry_file_name = response.headers['content-disposition'].split('=')[1]
             content = response.read()
             f = open(entries_dir + entry_file_name, 'w')
@@ -62,21 +68,29 @@ def download_entry(title, link):
             break
         except urllib2.URLError as e:
             attempts += 1
-            logging.error(type(e))
+            logger.error(type(e))
 
     read_file_marker = open(get_read_entry_marker_path(title), "w")
     read_file_marker.write(link)
 
 
 def run():
-    logging.info("Checking feed")
-    feed_object = feedparser.parse(rss_url)
+    logger.info("Checking feed")
+    # Do request using requests library and timeout
+    try:
+        resp = requests.get(rss_url, timeout=10.0)
+    except requests.ReadTimeout:
+        logger.warn("Timeout when reading RSS %s", rss_feed)
+        return
+    # Put it to memory stream object universal feedparser
+    content = BytesIO(resp.content)
+    feed_object = feedparser.parse(content)
     for entry in feed_object.entries:
         if not entry_exists(entry.title):
-            logging.info('Downloading ' + entry.title)
+            logger.info('Downloading ' + entry.title)
             download_entry(entry.title, entry.link)
         else:
-            logging.info('Skipping ' + entry.title)
+            logger.info('Skipping ' + entry.title)
 
 def run_forever():
     run()
@@ -85,7 +99,7 @@ def run_forever():
         schedule.run_pending()
         time.sleep(1)
 
-logging.info("Starting up application and running forever")
+logger.info("Starting up application and running forever")
 check_dirs()
 run_forever()
-logging.info("Stopping")
+logger.info("Stopping")
