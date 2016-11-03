@@ -78,8 +78,9 @@ def run():
     logger.info("Checking feed")
     try:
         resp = requests.get(rss_url, timeout=10.0)
-    except requests.ReadTimeout:
-        logger.warn("Timeout when reading RSS %s", rss_url)
+    except Exception as e:
+        logger.warn("Problem downlading RSS %s", rss_url)
+        logger.warn(e)
         return
     # Put it to memory stream object universal feedparser
     content = BytesIO(resp.content)
