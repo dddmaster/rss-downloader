@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+	<channel>
+		<ttl>10</ttl>
+		<title>File Download RSS Test</title>
+		<link>http://localhost.com</link>
+		<description>http://localhost</description>
+		<language>en-us</language>
+		<item>
+			<title>test_file_1</title>
+			<link>http://localhost:8080/test_responses/test_files/test_file_1.txt</link>
+			<description>test_file_1.txt</description>
+			<fid>1234</fid>
+
+		</item>
+		<item>
+			<title>test_file_2</title>
+			<link>http://localhost:8080/test_responses/test_files/test_file_2.txt</link>
+			<description>test_file_2.txt</description>
+			<fid>1235</fid>
+		</item>
+		<item>
+			<title>test_file_not_found</title>
+			<link>http://localhost:8080/test_responses/test_files/test_file_not_found.txt</link>
+			<description>test_file_not_found.txt</description>
+			<fid>1236</fid>
+		</item>
+	</channel>
+</rss>
