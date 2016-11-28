@@ -110,25 +110,38 @@ class RssDownloader:
             schedule.run_pending()
             time.sleep(1)
 
+def print_help_and_exit():
+    print 'rss_downloader.py -o <outputdir> -u <url> [-u <url>...]'
+    sys.exit(2)
 
 def main(argv):
     rss_urls = []
     root_download_dir = ""
-
     try:
-        opts, args = getopt.getopt(argv,"hi:o:",["ifile=","ofile="])
+        opts, args = getopt.getopt(argv,"u:o:h")
     except getopt.GetoptError:
-        print 'rss_downloader.py -o <outputdir> -u <url> [-u <url>...]'
-        sys.exit(2)
+        print getopt.GetoptError
+        print_help_and_exit()
+
+    print opts
     for opt, arg in opts:
+        print opt
         if opt == '-h':
-            print 'rss_downloader.py -o <outputdir> -u <url> [-u <url>...]'
-            sys.exit()
-        elif opt in ("-u", "--url"):
+            print_help_and_exit()
+        elif opt == "-u":
             rss_urls.append(arg)
-        elif opt in ("-o", "--outputdir"):
+        elif opt == "-o":
             root_download_dir = arg
+    if len(rss_urls) < 1:
+        print "must set rss url"
+        print_help_and_exit()
+    if len(root_download_dir) < 1:
+        print "must set download dir"
+        print_help_and_exit()
+
+
     rss_downloader = RssDownloader(root_download_dir, rss_urls)
+    print "Starting and running forever"
     rss_downloader.run_forever()
 
 if __name__ == '__main__':

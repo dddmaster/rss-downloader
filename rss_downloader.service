@@ -2,7 +2,7 @@
 Description=runs the rss_downloader
 
 [Service]
-ExecStart=/usr/bin/python /opt/bin/rss_downloader.py
+ExecStart=/usr/bin/python /opt/bin/rss_downloader.py -o ~/my_download_dir -u http://localhost:8080/test_responses/main.xml
 
 [Install]
 WantedBy=multi-user.target
