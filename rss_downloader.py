@@ -1,23 +1,8 @@
 # Rss auto downloader
+# Downloads contents of the RSS feed to a download directory. It won't download
+# the same file twice.
 #
-# First time setup:
-#   pip install feedparser
-#   pip install schedule
-#
-#
-# If you have systemd to control services then you can make this a
-# service by creating a file at /etc/systemd/system/rss_downloader.service
-# with the following contents
-#
-#[Unit]
-#Description=runs the rss_downloader
-#
-#[Service]
-#ExecStart=/usr/bin/python /opt/bin/rss_dowloader.py
-#
-#[Install]
-#WantedBy=multi-user.target
-#
+# Logs are written root_download_dir/rssdownloader.log
 #
 import feedparser
 import os
