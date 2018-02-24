@@ -3,8 +3,8 @@ load("@subpar//:subpar.bzl", "par_binary")
 load("@my_deps//:requirements.bzl", "requirement")
 
 par_binary (
-    name="rss_downloader",
-    srcs=["rss_downloader.py"],
+    name = "rss_downloader",
+    srcs = ["rss_downloader.py"],
     deps = [
       requirement("appdirs"),
       requirement("feedparser"),
@@ -17,9 +17,9 @@ par_binary (
 )
 
 py_test(
-    name="test_rss_downloader",
-    srcs=["test_cases.py"],
-    data=["test_responses"],
-    deps=[":rss_downloader"],
-    main="test_cases.py"
+    name = "test_rss_downloader",
+    srcs = ["test_cases.py"],
+    data = ["test_responses"],
+    deps = [":rss_downloader"],
+    main = "test_cases.py"
 )
