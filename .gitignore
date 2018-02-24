@@ -1,8 +1,4 @@
 .idea
 *.pyc
 venv
-bazel-bin
-bazel-genfiles
-bazel-out
-bazel-rss-downloader
-bazel-testlogs
+bazel-*
