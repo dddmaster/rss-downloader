@@ -29,6 +29,7 @@ class RssDownloader:
         handler = RotatingFileHandler(root_download_dir + '/rssdownloader.log', maxBytes=50000,backupCount=5)
         handler.setFormatter(logging.Formatter('%(asctime)s %(message)s'))
         logger.addHandler(handler)
+        logger.addHandler(logging.StreamHandler())
         self.logger = logger
         self.cron_minute_delay = 10
         self.check_dirs()
