@@ -27,10 +27,7 @@ class IsOddTests(unittest.TestCase):
             print "Could not start spoof server"
 
     def testDownloadsFilesFromTwoSources(self):
-        test_path = "./build/test_dir"
-        if os.path.exists(test_path):
-            shutil.rmtree(test_path)
-        os.makedirs(test_path)
+        test_path = "./"
         rss_downloader = RssDownloader(test_path,
                                        ["http://localhost:8080/test_responses/main.xml",
                                         "http://localhost:8080/test_responses/main2.xml"])
