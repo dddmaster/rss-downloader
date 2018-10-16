@@ -1,8 +1,0 @@
-[Unit]
-Description=runs the rss_downloader
-
-[Service]
-ExecStart=/opt/bin/rss_downloader.par -o ~/my_download_dir -u http://localhost:8080/test_responses/main.xml
-
-[Install]
-WantedBy=multi-user.target
