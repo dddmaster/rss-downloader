@@ -55,24 +55,29 @@ function download(item) {
     });
 }
 
+function processFeedsNoSchedule(urls) {
+    urls.forEach(url => {
+        logger.info("Parsing URL " + url)
+        let parser = new Parser();
+        (async () => {
+            let feed = await parser.parseURL(url);
+            logger.info("Feed Title: "  + feed.title)
+            feed.items.forEach(item => {
+                logger.info("Item: " + item.title)
+                alreadyDownloaded(item, (downloaded) => {
+                    if(!downloaded) download(item)
+                }); 
+            })
+        })()
+    })
+}
+
 function processFeeds(cronSchedule, urls) {
     logger.info("Starting feed procesing with CRON " + cronSchedule)
     logger.info("Feeds to use: " + JSON.stringify(urls))
+    processFeedsNoSchedule(urls)
     cron.schedule(cronSchedule, () => {
-        urls.forEach(url => {
-            logger.info("Parsing URL " + url)
-            let parser = new Parser();
-            (async () => {
-                let feed = await parser.parseURL(url);
-                logger.info("Feed Title: "  + feed.title)
-                feed.items.forEach(item => {
-                    logger.info("Item: " + item.title)
-                    alreadyDownloaded(item, (downloaded) => {
-                        if(!downloaded) download(item)
-                    }); 
-                })
-            })()
-        })
+        processFeedsNoSchedule(urls)
     })
 }
 

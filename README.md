@@ -21,4 +21,4 @@ logs will be written to `logs` and all downloaded files will be written to `file
 ## Running as a docker container
 
   `docker build -t rss-downloader .`
-  `docker run -e FEED_URL=<url> -v /path/to/files:/rss-downloader/files -v /path/to/logs:/rss-downloader/logs`
+  `docker run -e FEED_URL=<url> -e CRON_SCHEDULE="*/5 * * * *" -v /path/to/files:/rss-downloader/files -v /path/to/logs:/rss-downloader/logs`
