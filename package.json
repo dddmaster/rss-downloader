@@ -1,0 +1,28 @@
+{
+  "name": "rss-downloader",
+  "version": "1.0.0",
+  "description": "Downloads contents of the RSS feed to a download directory.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WhiteBoardDev/rss-downloader.git"
+  },
+  "keywords": [
+    "rss"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WhiteBoardDev/rss-downloader/issues"
+  },
+  "homepage": "https://github.com/WhiteBoardDev/rss-downloader#readme",
+  "devDependencies": {
+    "node-cron": "^2.0.3",
+    "rss-parser": "^3.5.2",
+    "winston": "^3.1.0",
+    "winston-daily-rotate-file": "^3.3.3"
+  }
+}

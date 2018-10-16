@@ -1,7 +1,0 @@
-appdirs==1.4.0
-feedparser==5.2.1
-packaging==16.8
-pyparsing==2.1.10
-requests==2.13.0
-schedule==0.4.2
-six==1.10.0
