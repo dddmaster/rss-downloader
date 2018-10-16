@@ -18,6 +18,11 @@ published.
 5. Run `sudo service rss_downloader start`
 
 
+## Running as a docker container
+
+  `docker build -t rss-downloader .`
+  `docker run -e FEED_URL=<url> -v /path/to/downloads:/downloads rss-downloader`
+
 ## Logging and Debugging
 
 Logs are written to `path/to/download/directory/rssdownloader.log` and will detail what is seen in
