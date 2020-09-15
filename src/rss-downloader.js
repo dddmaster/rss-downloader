@@ -5,6 +5,7 @@ const fs = require("fs");
 const util = require('util');
 var http = require('https');
 var cron = require('node-cron');
+const sanitize = require('sanitize-filename');
 
 const logger = winston.createLogger({
     level: 'debug',
@@ -37,17 +38,19 @@ function alreadyDownloaded(item, callback) {
     })
 }
 
+let disallowedCharsInFileName
 function addManifest(item) {
-    fs.writeFile (util.format(manifestTemplate, item.title), JSON.stringify(item, null, 2), function(err) {
+    let manifestFileName = util.format(manifestTemplate, sanitize(item.title))
+    fs.writeFile (manifestFileName, JSON.stringify(item, null, 2), function(err) {
         if (err) throw err;
-            logger.info(util.format("Added manifest for %s", item.title))
+            logger.info(util.format("Added manifest %s", manifestFileName))
         });
 }
 
 function download(item) {
     !fs.existsSync(downloadDir) && fs.mkdirSync(downloadDir);
     var request = http.get(item.link, function(response){
-        var fileName = response.headers['content-disposition'].split('=')[1];
+        var fileName = sanitize(response.headers['content-disposition'].split('=')[1]);
         logger.info(util.format("Downloading file %s", fileName))
         var file = fs.createWriteStream(downloadDir + '/' + fileName);
         response.pipe(file)
