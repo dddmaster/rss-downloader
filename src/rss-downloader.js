@@ -2,77 +2,71 @@ const winston = require('winston')
 const DailyRotateFile = require('winston-daily-rotate-file');
 const Parser = require('rss-parser');
 const fs = require("fs");
+const asyncFs = require('fs/promises');
 const util = require('util');
-var http = require('https');
+var https = require('https');
 var cron = require('node-cron');
 const sanitize = require('sanitize-filename');
-
+const downloadDir = 'files'
 const logger = winston.createLogger({
     level: 'debug',
     format: winston.format.json(),
     transports: [
-      new winston.transports.Console(),
-      new DailyRotateFile({
-        filename: 'logs/rssdownloader-%DATE%.log',
-        datePattern: 'YYYY-MM-DD-HH',
-        zippedArchive: true,
-        maxSize: '20m',
-        maxFiles: '180d'
-      })
+        new winston.transports.Console(),
+        new DailyRotateFile({
+            filename: 'logs/rssdownloader-%DATE%.log',
+            datePattern: 'YYYY-MM-DD-HH',
+            zippedArchive: true,
+            maxSize: '20m',
+            maxFiles: '180d'
+        })
     ]
-  });
+});
 
-const downloadDir = 'files'
-const manifestTemplate = downloadDir + '/%s_manifest.json'
-
-function alreadyDownloaded(item, callback) {
-    logger.log('debug', "Checking if item " + item.title + " has been downloaded")
-    fs.access(util.format(manifestTemplate, item.title), (err) => {
-        if(err == null) {
-            logger.log('debug', util.format("%s already downloaded", item.title))
-            callback(true)
-        }
-        else {
-            callback(false)
-        }
-    })
+const titleToManifestFilePath = (title) => {
+    return `${downloadDir}/${sanitize(title)}_manifest.json`
 }
 
-let disallowedCharsInFileName
-function addManifest(item) {
-    let manifestFileName = util.format(manifestTemplate, sanitize(item.title))
-    fs.writeFile (manifestFileName, JSON.stringify(item, null, 2), function(err) {
-        if (err) throw err;
-            logger.info(util.format("Added manifest %s", manifestFileName))
-        });
+const alreadyDownloaded = async (item) => {
+    try {
+        await asyncFs.access(titleToManifestFilePath(item.title), fs.constants.R_OK)
+        return true
+    } catch(err) {
+        logger.log('debug',  `${item.title} not downloaded`)
+        return false
+    }
 }
 
-function download(item) {
-    !fs.existsSync(downloadDir) && fs.mkdirSync(downloadDir);
-    var request = http.get(item.link, function(response){
-        var fileName = sanitize(response.headers['content-disposition'].split('=')[1]);
-        logger.info(util.format("Downloading file %s", fileName))
-        var file = fs.createWriteStream(downloadDir + '/' + fileName);
-        response.pipe(file)
-        addManifest(item)
+const addManifest = async (item) => {
+    let manifestFileName = titleToManifestFilePath(item.title)
+    await fs.writeFile (manifestFileName, JSON.stringify(item, null, 2), (err) => { 
+        if(err) { 
+            logger.error(err)
+        }
     });
+    logger.info(util.format("Added manifest %s", manifestFileName))
 }
-
-function processFeedsNoSchedule(urls) {
-    urls.forEach(url => {
+const processFeedsNoSchedule = async (urls) => {
+    !fs.existsSync(downloadDir) && fs.mkdirSync(downloadDir);
+    await Promise.all(urls.map(async (url) => {
         logger.info("Parsing URL " + url)
         let parser = new Parser();
-        (async () => {
-            let feed = await parser.parseURL(url);
-            logger.info("Feed Title: "  + feed.title)
-            feed.items.forEach(item => {
-                logger.info("Item: " + item.title)
-                alreadyDownloaded(item, (downloaded) => {
-                    if(!downloaded) download(item)
-                }); 
-            })
-        })()
-    })
+        let feed = await parser.parseURL(url);
+        logger.info("Feed Title: "  + feed.title)
+        logger.info(`Items in Feed ${feed.items.length}`)
+        await Promise.all(feed.items.map(async (item) => {
+            const isAlreadyDownloaded = await alreadyDownloaded(item)
+            if(!isAlreadyDownloaded) {
+                    https.get(item.link, response => {
+                    addManifest(item)
+                    var fileName = sanitize(response.headers['content-disposition'].split('=')[1]);
+                    logger.info(util.format("Downloading file %s", fileName))
+                    var file = fs.createWriteStream(downloadDir + '/' + fileName);
+                    response.pipe(file)
+                })
+            }
+        }))
+    }))
 }
 
 function processFeeds(cronSchedule, urls) {
