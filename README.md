@@ -1,24 +1,11 @@
 # rss-downloader
 
-A simple node script to scan an RSS feed for content and download any new content that is
-published.
+Based on https://github.com/WhiteBoardDev/rss-downloader with minor adjustments
 
-## Quick install
-
-```
-npm install
-node index.js "*/30 * * * * *" https://myrssfeed.blarg/feed.rss
-```
-
-You can also give more arguments for many more feeds
+## Quick Run
 
 ```
-node index.js "*/30 * * * * *" https://myrssfeed.blarg/feed.rss https://myrssfeed.blarg/feed2.rss https://myrssfeed.blarg/feed3.rss 
+docker run -e RSS_URLS=example.com/feed.rss dddmaster/rss-downloader:latest
 ```
 
 logs will be written to `logs` and all downloaded files will be written to `files`
-
-## Running as a docker container
-
-  `docker build -t rss-downloader .`
-  `docker run -e FEED_URL=<url> -e CRON_SCHEDULE="*/5 * * * *" -v /path/to/files:/rss-downloader/files -v /path/to/logs:/rss-downloader/logs`

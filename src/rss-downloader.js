@@ -24,12 +24,20 @@ const logger = winston.createLogger({
 });
 
 const titleToManifestFilePath = (title) => {
-    return `${downloadDir}/${sanitize(title)}_manifest.json`
+    return `${sanitize(title)}.json`
 }
 
-const alreadyDownloaded = async (item) => {
+const titleToFile = (item) => {
+	return `${sanitize(item.title)}.${item.link.split('.').at(-1)}`
+}
+
+const fullDownloadPath = (feed) => {
+	return downloadDir+'/'+feed.title	
+}
+
+const alreadyDownloaded = async (feed,item) => {
     try {
-        await asyncFs.access(titleToManifestFilePath(item.title), fs.constants.R_OK)
+        await asyncFs.access(fullDownloadPath(feed)+'/'+titleToManifestFilePath(item.title), fs.constants.R_OK)
         return true
     } catch(err) {
         logger.log('debug',  `${item.title} not downloaded`)
@@ -37,9 +45,9 @@ const alreadyDownloaded = async (item) => {
     }
 }
 
-const addManifest = async (item) => {
+const addManifest = async (feed,item) => {
     let manifestFileName = titleToManifestFilePath(item.title)
-    await fs.writeFile (manifestFileName, JSON.stringify(item, null, 2), (err) => { 
+    await fs.writeFile (fullDownloadPath(feed)+'/'+manifestFileName, JSON.stringify(item, null, 2), (err) => { 
         if(err) { 
             logger.error(err)
         }
@@ -54,14 +62,15 @@ const processFeedsNoSchedule = async (urls) => {
         let feed = await parser.parseURL(url);
         logger.info("Feed Title: "  + feed.title)
         logger.info(`Items in Feed ${feed.items.length}`)
+        !fs.existsSync(fullDownloadPath(feed)) && fs.mkdirSync(fullDownloadPath(feed));
         await Promise.all(feed.items.map(async (item) => {
-            const isAlreadyDownloaded = await alreadyDownloaded(item)
+            const isAlreadyDownloaded = await alreadyDownloaded(feed,item)
             if(!isAlreadyDownloaded) {
                     https.get(item.link, response => {
-                    addManifest(item)
-                    var fileName = sanitize(response.headers['content-disposition'].split('=')[1]);
+                    addManifest(feed,item)
+                    var fileName = titleToFile(item);
                     logger.info(util.format("Downloading file %s", fileName))
-                    var file = fs.createWriteStream(downloadDir + '/' + fileName);
+                    var file = fs.createWriteStream(fullDownloadPath(feed) + '/' + fileName);
                     response.pipe(file)
                 })
             }

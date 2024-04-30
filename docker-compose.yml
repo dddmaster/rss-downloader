@@ -1,0 +1,6 @@
+services:
+    rss-downloader:
+        environment:
+          - "RSS_URLS=$RSS_URLS"
+        image: "dddmaster/rss-downloader:latest"
+        restart: "unless-stopped"
